@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Test botón + audio</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+  }
+  canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: lightblue;
+    pointer-events: none; /* IMPORTANTE */
+    z-index: 0;
+  }
+  #start-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+  }
+  #start-button {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<canvas></canvas>
+
+<div id="start-screen">
+  <button id="start-button">Comenzar</button>
+</div>
+
+<audio id="bg-music" src="Love Story_Indila.mp3" preload="auto"></audio>
+
+<script>
+  const music = document.getElementById('bg-music');
+  const startButton = document.getElementById('start-button');
+  const startScreen = document.getElementById('start-screen');
+
+  startButton.addEventListener('click', () => {
+    console.log('Botón clickeado');
+    music.play()
+      .then(() => {
+        console.log('Audio reproducido');
+        startScreen.style.display = 'none';
+      })
+      .catch(e => console.error('Error en audio:', e));
+  });
+</script>
+
+</body>
+</html>
