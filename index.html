@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Final project</title>
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        @font-face {
+            font-family: 'Augusta';
+            src: url('./fonts/Augusta.ttf') format('truetype');
+        }
+    </style>
+</head>
+<body>
+    <canvas class="webgl"></canvas>
+
+    <div id="start-screen" class="start-screen">
+        <div class="start-instruction">Da click para comenzar la historia</div>
+        <button class="start-button" id="start-button">Comenzar</button>
+    </div>
+
+    <!-- Overlay para fade -->
+    <div id="fade-overlay" class="fade-overlay"></div>
+
+    <!-- Audio -->
+    <audio id="bg-music" src="./audio/Love Story_Indila.mp3" preload="auto"></audio>
+
+    <script type="module" src="./script.js"></script>
+
+    <script>
+        document.getElementById('start-button').addEventListener('click',() => {
+            console.log('¡Click detectado!')
+            document.getElementById('bg-music').play()
+        })
+    </script>
+
+</body>
+</html>

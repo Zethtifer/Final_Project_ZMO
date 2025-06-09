@@ -1,0 +1,136 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+@font-face {
+    font-family: 'Augusta';
+    src: url('./fonts/Augusta.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html, body {
+    overflow: hidden;
+    height: 100%;
+}
+
+.webgl {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    outline: none;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.instructions-text {
+    position: fixed;
+    top: 40px;
+    left: 10px;
+    color: white;
+    font-family: 'Augusta', serif;
+    font-size: 14px;
+    text-align: center;
+    z-index: 10;
+    user-select: none;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+
+/* Pantalla de inicio */
+.start-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #2e3a50;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    pointer-events: auto;
+}
+
+.start-instruction {
+    color: white;
+    font-family: 'Augusta', serif;
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.start-button {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease;
+}
+
+.start-button:hover {
+    transform: scale(1.1);
+}
+
+.stage-label {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 14px;
+    color: white;
+    background-color: rgba(0,0,0,0.3);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: 'Arial', sans-serif;
+    z-index: 10;
+}
+
+.dialog-box {
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 400px;
+    background-color: rgba(0,0,0,0.6);
+    color: white;
+    font-family: 'Augusta', serif;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    text-align: center;
+    z-index: 10;
+    user-select: none;
+    display: none;
+}
+
+/* Overlay para transiciones */
+.fade-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: black;
+    opacity: 0;
+    transition: opacity 2s ease;
+    pointer-events: none;
+    z-index: 30;
+}
+
+.fade-in {
+    opacity: 1 !important;
+}
+
+.fade-out {
+    opacity: 0 !important;
+}
