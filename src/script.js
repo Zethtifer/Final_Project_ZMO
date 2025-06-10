@@ -128,11 +128,16 @@ function positionCloud(cloud) {
     cloud.scale.set(4, 3, 1)
 }
 
+// --- Aquí está la función corregida ---
 function animateCloudCover(onComplete) {
     const extraClouds = []
+    const previousColor = currentCloudColor.clone()
+    const nextIndex = (currentBackgroundIndex + 1) % backgroundImages.length
+    const nextColor = new THREE.Color(backgroundImages[nextIndex].tint)
+
     for (let i = 0; i < 50; i++) {
         const sprite = new THREE.Sprite(cloudMaterialArray[i % cloudMaterialArray.length].clone())
-        sprite.material.color.copy(currentCloudColor)
+        sprite.material.color.copy(previousColor)
         sprite.position.set((Math.random() - 0.5) * 10, 10 + Math.random() * 5, (Math.random() - 0.5) * 10)
         sprite.scale.set(4 + Math.random() * 4, 3 + Math.random() * 2, 1)
         cloudGroup.add(sprite)
@@ -144,10 +149,15 @@ function animateCloudCover(onComplete) {
 
     function animate() {
         const elapsed = (performance.now() - startTime) / 1000
-        const progress = Math.min(elapsed / duration, 1)
+        const progress = Math.min(elapsed / duration, 8)
+
+        const interpolated = previousColor.clone().lerp(nextColor, progress)
+
         for (const cloud of extraClouds) {
-            cloud.position.y = 10 - progress * 12
+            cloud.position.y = 9 - progress * 12
+            cloud.material.color.copy(interpolated)
         }
+
         if (progress < 1) {
             requestAnimationFrame(animate)
         } else {
@@ -157,6 +167,7 @@ function animateCloudCover(onComplete) {
 
     animate()
 }
+// --- fin función corregida ---
 
 function resetClouds() {
     while (cloudGroup.children.length > cloudCount) {
@@ -187,6 +198,7 @@ window.addEventListener('keydown', (event) => {
                         dialogBox.style.display = 'none'
                         startScreen.style.display = 'flex'
                         fadeOverlay.style.opacity = 0
+                        isTransitioning = false
                     }, 2000)
                 } else {
                     setBackground(currentBackgroundIndex)
