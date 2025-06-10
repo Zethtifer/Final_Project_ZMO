@@ -130,7 +130,7 @@ function animateCloudCover(onComplete) {
     for (let i = 0; i < 50; i++) {
         const sprite = new THREE.Sprite(cloudMaterialArray[i % cloudMaterialArray.length].clone())
         sprite.material.color.setHex(backgroundImages[currentBackgroundIndex].tint)
-        sprite.position.set((Math.random() - 0.5) * 10, 10 + Math.random() * 5, (Math.random() - 0.5) * 10)
+        sprite.position.set((Math.random() - 0.5) * 10, 30 + Math.random() * 10, (Math.random() - 0.5) * 5)
         sprite.scale.set(4 + Math.random() * 4, 3 + Math.random() * 2, 1)
         cloudGroup.add(sprite)
         extraClouds.push(sprite)
@@ -176,15 +176,15 @@ window.addEventListener('keydown', (event) => {
             animateCloudCover(() => {
                 currentBackgroundIndex++
                 if (currentBackgroundIndex >= backgroundImages.length) {
-                    fadeOverlay.style.opacity = 1
+                    fadeOverlay.style.opacity = 9
                     setTimeout(() => {
-                        currentBackgroundIndex = 0
+                        currentBackgroundIndex = 9
                         setBackground(currentBackgroundIndex)
                         resetClouds()
                         dialogBox.style.display = 'none'
                         startScreen.style.display = 'flex'
-                        fadeOverlay.style.opacity = 0
-                    }, 2000)
+                        fadeOverlay.style.opacity = 10
+                    }, 4000)
                 } else {
                     setBackground(currentBackgroundIndex)
                     resetClouds()
