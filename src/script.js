@@ -37,51 +37,64 @@ dialogBox.classList.add('dialog-box')
 document.body.appendChild(dialogBox)
 
 const fadeOverlay = document.createElement('div')
-fadeOverlay.style.position = 'fixed'
-fadeOverlay.style.top = 0
-fadeOverlay.style.left = 0
-fadeOverlay.style.width = '100vw'
-fadeOverlay.style.height = '100vh'
-fadeOverlay.style.backgroundColor = 'black'
-fadeOverlay.style.opacity = 0
-fadeOverlay.style.transition = 'opacity 2s ease'
-fadeOverlay.style.zIndex = 30
+fadeOverlay.className = 'fade-overlay'
 document.body.appendChild(fadeOverlay)
 
 const music = document.getElementById('bg-music');
-
 const startScreen = document.getElementById('start-screen');
 const startButton = document.getElementById('start-button');
 
 startButton.addEventListener('click', () => {
-    console.log('¡Botón clickeado!');
     fadeOverlay.style.opacity = 1;
     setTimeout(() => {
         startScreen.style.display = 'none';
-        music.play().then(() => {
-            console.log('Música iniciada');
-        }).catch(e => {
-            console.error('Error al reproducir música:', e);
-        });
+        music.play().then(() => console.log('Música iniciada'))
+            .catch(e => console.error('Error al reproducir música:', e));
         startStory();
         fadeOverlay.style.opacity = 0;
     }, 2000);
 });
 
-
 function startStory() {
     currentBackgroundIndex = 0;
     setBackground(currentBackgroundIndex);
-    dialogBox.style.display = 'none';  // No mostrar diálogo al inicio
+    dialogBox.style.display = 'none';
 }
 
+let currentCloudColor = new THREE.Color(0xffffff)
+
+function smoothTintClouds(targetColorHex, duration = 2) {
+    const startTime = performance.now()
+    const targetColor = new THREE.Color(targetColorHex)
+
+    const allClouds = cloudGroup.children
+    const initialColor = currentCloudColor.clone()
+
+    function animate() {
+        const elapsed = (performance.now() - startTime) / 1000
+        const progress = Math.min(elapsed / duration, 1)
+
+        const interpolated = initialColor.clone().lerp(targetColor, progress)
+        allClouds.forEach(cloud => {
+            cloud.material.color.copy(interpolated)
+        })
+
+        if (progress < 1) {
+            requestAnimationFrame(animate)
+        } else {
+            currentCloudColor.copy(targetColor)
+        }
+    }
+
+    animate()
+}
 
 function setBackground(index) {
     loader.load(backgroundImages[index].path, (texture) => {
         scene.background = texture
         stageLabel.innerText = `Stage: ${backgroundImages[index].name}`
         dialogBox.innerText = backgroundImages[index].dialog
-        tintClouds(backgroundImages[index].tint)
+        smoothTintClouds(backgroundImages[index].tint)
     })
 }
 
@@ -115,19 +128,11 @@ function positionCloud(cloud) {
     cloud.scale.set(4, 3, 1)
 }
 
-function tintClouds(colorHex) {
-    cloudGroup.children.forEach(child => {
-        if (child.material && child.material.color) {
-            child.material.color.setHex(colorHex)
-        }
-    })
-}
-
 function animateCloudCover(onComplete) {
     const extraClouds = []
     for (let i = 0; i < 50; i++) {
         const sprite = new THREE.Sprite(cloudMaterialArray[i % cloudMaterialArray.length].clone())
-        sprite.material.color.setHex(backgroundImages[currentBackgroundIndex].tint)
+        sprite.material.color.copy(currentCloudColor)
         sprite.position.set((Math.random() - 0.5) * 10, 10 + Math.random() * 5, (Math.random() - 0.5) * 10)
         sprite.scale.set(4 + Math.random() * 4, 3 + Math.random() * 2, 1)
         cloudGroup.add(sprite)
@@ -194,7 +199,6 @@ window.addEventListener('keydown', (event) => {
     }
 })
 
-// Modelo y luces
 const dracoLoader = new DRACOLoader()
 dracoLoader.setDecoderPath('/draco/')
 
@@ -205,7 +209,6 @@ let mixer = null
 let angle = 0
 const radius = 3
 
-// Dragon
 gltfLoader.load('/models/dragon_flying/dragon.gltf', (gltf) => {
     gltf.scene.scale.set(2, 2, 2)
     gltf.scene.rotation.x = -Math.PI / 2
