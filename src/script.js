@@ -40,25 +40,25 @@ const fadeOverlay = document.createElement('div')
 fadeOverlay.className = 'fade-overlay'
 document.body.appendChild(fadeOverlay)
 
-const music = document.getElementById('bg-music');
-const startScreen = document.getElementById('start-screen');
-const startButton = document.getElementById('start-button');
+const music = document.getElementById('bg-music')
+const startScreen = document.getElementById('start-screen')
+const startButton = document.getElementById('start-button')
 
 startButton.addEventListener('click', () => {
-    fadeOverlay.style.opacity = 1;
+    fadeOverlay.style.opacity = 1
     setTimeout(() => {
-        startScreen.style.display = 'none';
+        startScreen.style.display = 'none'
         music.play().then(() => console.log('Música iniciada'))
-            .catch(e => console.error('Error al reproducir música:', e));
-        startStory();
-        fadeOverlay.style.opacity = 0;
-    }, 2000);
-});
+            .catch(e => console.error('Error al reproducir música:', e))
+        startStory()
+        fadeOverlay.style.opacity = 0
+    }, 2000)
+})
 
 function startStory() {
-    currentBackgroundIndex = 0;
-    setBackground(currentBackgroundIndex);
-    dialogBox.style.display = 'none';
+    currentBackgroundIndex = 0
+    setBackground(currentBackgroundIndex)
+    dialogBox.style.display = 'none'
 }
 
 let currentCloudColor = new THREE.Color(0xffffff)
@@ -66,31 +66,22 @@ let currentCloudColor = new THREE.Color(0xffffff)
 function smoothTintClouds(targetColorHex, duration = 2) {
     const startTime = performance.now()
     const targetColor = new THREE.Color(targetColorHex)
-
     const allClouds = cloudGroup.children
     const initialColor = currentCloudColor.clone()
 
     function animate() {
         const elapsed = (performance.now() - startTime) / 1000
         const progress = Math.min(elapsed / duration, 1)
-
         const interpolated = initialColor.clone().lerp(targetColor, progress)
-        allClouds.forEach(cloud => {
-            cloud.material.color.copy(interpolated)
-        })
-
-        if (progress < 1) {
-            requestAnimationFrame(animate)
-        } else {
-            currentCloudColor.copy(targetColor)
-        }
+        allClouds.forEach(cloud => cloud.material.color.copy(interpolated))
+        if (progress < 1) requestAnimationFrame(animate)
+        else currentCloudColor.copy(targetColor)
     }
-
     animate()
 }
 
 function setBackground(index) {
-    loader.load(backgroundImages[index].path, (texture) => {
+    loader.load(backgroundImages[index].path, texture => {
         scene.background = texture
         stageLabel.innerText = `Stage: ${backgroundImages[index].name}`
         dialogBox.innerText = backgroundImages[index].dialog
@@ -106,7 +97,6 @@ const cloudTextures = [
     '/skytexture/_Clouds4.png',
     '/skytexture/_Clouds5.png'
 ]
-
 const cloudMaterialArray = cloudTextures.map(path => {
     const texture = textureLoader.load(path)
     return new THREE.SpriteMaterial({ map: texture, transparent: true })
@@ -128,13 +118,11 @@ function positionCloud(cloud) {
     cloud.scale.set(4, 3, 1)
 }
 
-// --- Aquí está la función corregida ---
 function animateCloudCover(onComplete) {
     const extraClouds = []
     const previousColor = currentCloudColor.clone()
     const nextIndex = (currentBackgroundIndex + 1) % backgroundImages.length
     const nextColor = new THREE.Color(backgroundImages[nextIndex].tint)
-
     for (let i = 0; i < 50; i++) {
         const sprite = new THREE.Sprite(cloudMaterialArray[i % cloudMaterialArray.length].clone())
         sprite.material.color.copy(previousColor)
@@ -143,39 +131,25 @@ function animateCloudCover(onComplete) {
         cloudGroup.add(sprite)
         extraClouds.push(sprite)
     }
-
     const duration = 8
     const startTime = performance.now()
-
     function animate() {
         const elapsed = (performance.now() - startTime) / 1000
         const progress = Math.min(elapsed / duration, 8)
-
         const interpolated = previousColor.clone().lerp(nextColor, progress)
-
         for (const cloud of extraClouds) {
             cloud.position.y = 9 - progress * 12
             cloud.material.color.copy(interpolated)
         }
-
-        if (progress < 1) {
-            requestAnimationFrame(animate)
-        } else {
-            onComplete()
-        }
+        if (progress < 1) requestAnimationFrame(animate)
+        else onComplete()
     }
-
     animate()
 }
-// --- fin función corregida ---
 
 function resetClouds() {
-    while (cloudGroup.children.length > cloudCount) {
-        cloudGroup.remove(cloudGroup.children[cloudGroup.children.length - 1])
-    }
-    for (let i = 0; i < cloudCount; i++) {
-        positionCloud(cloudGroup.children[i])
-    }
+    while (cloudGroup.children.length > cloudCount) cloudGroup.remove(cloudGroup.children[cloudGroup.children.length - 1])
+    for (let i = 0; i < cloudCount; i++) positionCloud(cloudGroup.children[i])
 }
 
 let isTransitioning = false
@@ -185,7 +159,6 @@ window.addEventListener('keydown', (event) => {
         isTransitioning = true
         dialogBox.innerText = backgroundImages[currentBackgroundIndex].dialog
         dialogBox.style.display = 'block'
-
         setTimeout(() => {
             animateCloudCover(() => {
                 currentBackgroundIndex++
@@ -213,7 +186,6 @@ window.addEventListener('keydown', (event) => {
 
 const dracoLoader = new DRACOLoader()
 dracoLoader.setDecoderPath('/draco/')
-
 const gltfLoader = new GLTFLoader()
 gltfLoader.setDRACOLoader(dracoLoader)
 
@@ -221,6 +193,7 @@ let mixer = null
 let angle = 0
 const radius = 3
 
+let dragon = null
 gltfLoader.load('/models/dragon_flying/dragon.gltf', (gltf) => {
     gltf.scene.scale.set(2, 2, 2)
     gltf.scene.rotation.x = -Math.PI / 2
@@ -228,8 +201,8 @@ gltfLoader.load('/models/dragon_flying/dragon.gltf', (gltf) => {
     const center = new THREE.Vector3()
     box.getCenter(center)
     gltf.scene.position.sub(center).add(new THREE.Vector3(0, -2.5, 9.5))
-    scene.add(gltf.scene)
-
+    dragon = gltf.scene
+    scene.add(dragon)
     if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(gltf.scene)
         const action = mixer.clipAction(gltf.animations[0])
@@ -245,23 +218,13 @@ window.addEventListener('wheel', (event) => {
 
 const ambientLight = new THREE.AmbientLight(0xA865B5, 2.4)
 scene.add(ambientLight)
-
 const directionalLight = new THREE.DirectionalLight(0xA865B5, 1.8)
 directionalLight.castShadow = true
 directionalLight.shadow.mapSize.set(1024, 1024)
 directionalLight.shadow.camera.far = 17
-directionalLight.shadow.camera.left = -7
-directionalLight.shadow.camera.top = 5
-directionalLight.shadow.camera.right = 4
-directionalLight.shadow.camera.bottom = -7
-directionalLight.position.set(1, 5, 3)
 scene.add(directionalLight)
 
-const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
-}
-
+const sizes = { width: window.innerWidth, height: window.innerHeight }
 window.addEventListener('resize', () => {
     sizes.width = window.innerWidth
     sizes.height = window.innerHeight
@@ -279,15 +242,36 @@ const controls = new OrbitControls(camera, canvas)
 controls.target.set(0, -0.15, 0)
 controls.enableDamping = true
 
-const renderer = new THREE.WebGLRenderer({ canvas: canvas })
+const renderer = new THREE.WebGLRenderer({ canvas })
 renderer.shadowMap.enabled = true
-renderer.shadowMap.type = THREE.PCFSoftShadowMap
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
+// --- Partículas libres circulares ---
+const particleCount = 2000
+const particlesGeometry = new THREE.BufferGeometry()
+const positions = new Float32Array(particleCount * 3)
+const baseCenters = new Float32Array(particleCount * 3)
+
+for (let i = 0; i < particleCount; i++) {
+    const baseX = (Math.random() - 0.5) * 20
+    const baseY = (Math.random() - 0.5) * 10
+    const baseZ = (Math.random() - 0.5) * 20
+    baseCenters[i * 3] = baseX
+    baseCenters[i * 3 + 1] = baseY
+    baseCenters[i * 3 + 2] = baseZ
+    positions[i * 3] = baseX
+    positions[i * 3 + 1] = baseY
+    positions[i * 3 + 2] = baseZ
+}
+
+particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+const particlesMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.025, sizeAttenuation: true })
+const dragonParticles = new THREE.Points(particlesGeometry, particlesMaterial)
+scene.add(dragonParticles)
+
 const clock = new THREE.Clock()
 let previousTime = 0
-
 const tick = () => {
     const elapsedTime = clock.getElapsedTime()
     const deltaTime = elapsedTime - previousTime
@@ -295,21 +279,31 @@ const tick = () => {
 
     if (mixer) mixer.update(deltaTime)
 
-    clouds.forEach(cloud => {
-        cloud.position.y -= deltaTime * 0.5
-        if (cloud.position.y < -5) {
-            cloud.position.y = 4 + Math.random() * 3
-        }
-    })
-
     camera.position.x = radius * Math.cos(angle)
     camera.position.z = radius * Math.sin(angle)
     camera.position.y = 1.5
     camera.lookAt(0, 0, 0)
 
+    for (let i = 0; i < particleCount; i++) {
+        const cx = baseCenters[i * 3]
+        const cy = baseCenters[i * 3 + 1]
+        const cz = baseCenters[i * 3 + 2]
+        const localRadius = 0.5 + Math.sin(i + elapsedTime) * 0.2
+        const speed = 0.5 + (i % 5) * 0.15
+        const angle = elapsedTime * speed + i
+        positions[i * 3] = cx + Math.cos(angle) * localRadius
+        positions[i * 3 + 1] = cy + Math.sin(angle * 0.7) * localRadius * 0.5
+        positions[i * 3 + 2] = cz + Math.sin(angle) * localRadius
+    }
+    particlesGeometry.attributes.position.needsUpdate = true
+
+    clouds.forEach(cloud => {
+        cloud.position.y -= deltaTime * 0.5
+        if (cloud.position.y < -5) cloud.position.y = 4 + Math.random() * 3
+    })
+
     controls.update()
     renderer.render(scene, camera)
     window.requestAnimationFrame(tick)
 }
-
 tick()
